@@ -5,18 +5,37 @@
  */
 
 function wait1(t) {
-
+    let p =new Promise(function(resolve){
+       setTimeout(()=>{
+        resolve();
+       },t);
+    });
+    return p;
 }
 
 function wait2(t) {
-
+    let p =new Promise(function(resolve){
+        setTimeout(()=>{
+         resolve();
+        },t);
+     });
+     return p;
 }
 
 function wait3(t) {
-
+    let p =new Promise(function(resolve){
+        setTimeout(()=>{
+         resolve();
+        },t);
+     });
+     return p;
 }
 
 function calculateTime(t1, t2, t3) {
+    return Promise.all([wait1(t1),wait2(t2),wait3(t3)]).then(values=>{
+        const totalTime = Math.max(t1, t2, t3);
+        return totalTime;
+    })
 
 }
 

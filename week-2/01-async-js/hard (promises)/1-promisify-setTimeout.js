@@ -3,6 +3,14 @@
 */
 
 function wait(n) {
+    const prom= new Promise(function(resolveCallback) {
+        setTimeout(() => {
+            resolveCallback();
+        }, n*1000);
+    });
+
+    return prom;
 }
 
 module.exports = wait;
+
