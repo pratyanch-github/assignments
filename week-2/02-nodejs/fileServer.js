@@ -18,4 +18,26 @@ const path = require('path');
 const app = express();
 
 
+app.get("/files", (req, res) => {
+  fs.readdir("./files", (err, files) => {
+    if (err) console.log(err);
+    else {
+      console.log("list of files : ", files);
+      res.send(files);
+    }
+  })
+})
+
+app.get("/files/:filename", (req,res)=>{ // using query parameters
+    const fileName= req.params.filename;
+    fs.readFile(`files/${fileName}`, (err,data)=>{
+      console.log(data);
+      res.send(data);
+    })
+
+})
+
+app.listen(3000);
+
+
 module.exports = app;
