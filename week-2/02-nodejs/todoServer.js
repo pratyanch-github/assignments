@@ -40,10 +40,55 @@
   Testing the server - run `npm run test-todoServer` command in terminal
  */
   const express = require('express');
+  const fs = require('fs').promises;   // promise version of fs is required for await syntax in fs functions.
+  const path = require('path');
   const bodyParser = require('body-parser');
   
   const app = express();
   
-  app.use(bodyParser.json());
+  // Middleware to parse JSON in the request body
+  app.use(express.json());
+  
+  function generateUniqueId() {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+  }
+
+  let todoList = [];
+  async function readTodoList()
+  {  
+      let data = await fs.readFile(path.join(__dirname, "/files/todoList.json"), 'utf-8');
+      todoList= JSON.parse(data);
+  
+  }
+
+  app.get("/todos",async (req,res)=>{
+       res.status(200).send(todoList);
+  })
+
+  app.get("/todos/:id", (req,res)=>{
+
+     let reqid=req.params.id;
+     for(let todo of todoList)
+     {
+        if(todo.id === reqid)
+        {
+          res.send(todo);
+        }
+     }
+  })
+  
+  app.post("/todos", (req,res)=>{
+     let title= req.body.title;
+     let description= req.body.description;
+     let id= generateUniqueId;
+     todoList.push({title,description,id});
+     res.send()
+  })
+ 
+  let port=3000;
+  app.listen(port, async()=>{
+    await readTodoList();
+    console.log("server listening on port");
+  });
   
   module.exports = app;
