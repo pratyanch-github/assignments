@@ -14,14 +14,39 @@ const app = express();
 let numberOfRequestsForUser = {};
 setInterval(() => {
     numberOfRequestsForUser = {};
-}, 1000)
+}, 5000);
+
+let ratelimitter = (req,res,next)=>{
+   let ip= req.ip;
+   console.log("new req !");
+   if(!numberOfRequestsForUser[ip]) numberOfRequestsForUser[ip]=1;
+   else {
+
+        numberOfRequestsForUser[ip]+=1;
+        if(numberOfRequestsForUser[ip]>5)
+        { 
+          res.status(429).send('Too many requests from this IP, Please try again after a moment');
+          return;
+        }
+
+   }
+   next();
+};
+
+app.use(ratelimitter);
 
 app.get('/user', function(req, res) {
-  res.status(200).json({ name: 'john' });
+  let ip= req.ip;
+  res.status(200).json({ name: 'john' , requests : numberOfRequestsForUser[ip] });
 });
 
 app.post('/user', function(req, res) {
-  res.status(200).json({ msg: 'created dummy user' });
+  let ip= req.ip;
+  res.status(200).json({ msg: 'created dummy user', requests :  numberOfRequestsForUser[ip] });
 });
+
+app.listen(3000,function(err, res) {
+  console.log('listening on', 3000);
+})
 
 module.exports = app;
