@@ -39,109 +39,86 @@
 
   Testing the server - run `npm run test-todoServer` command in terminal
  */
-const express = require('express');
-const fs = require('fs').promises;
-const path = require('path');
-const { pathToFileURL } = require('url');
+  const express = require('express');
+  const fs = require('fs').promises;
+  const path = require('path');
+  
+  const app = express();
+  
+  // Middleware to parse JSON in the request body
+  app.use(express.json());
+  
 
-const app = express();
-
-// Middleware to parse JSON in the request body
-app.use(express.json());
-
-
-function generateUniqueId() {
-  return Date.now().toString(36) + Math.random().toString(36).substr(2);
-}
-
-const todoListFilePath = path.join(__dirname, '/files/todoList.json');
-let todoList = [];
-
-async function readTodoList() {
-  try {
-    const data = await fs.readFile(todoListFilePath, 'utf-8');
-    todoList = JSON.parse(data);
-  } catch (error) {
-    todoList = [];
+  
+  function generateUniqueId() {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
   }
-}
-
-async function writeTodoList() {
-  const data = JSON.stringify(todoList, null, 2);
-  await fs.writeFile(todoListFilePath, data, 'utf-8');
-}
-
-app.get('/todos', async (req, res) => {
-  await readTodoList();
-  res.status(200).json(todoList);
-  return;
-});
-
-app.get('/todos/:id', (req, res) => {
-  const reqId = req.params.id;
-  const todo = todoList.find((todo) => todo.id === reqId);
-
-  if (todo) {
-    res.status(200).json(todo);
-  } else {
-    res.status(404).json({ error: 'Todo not found' });
-  }
-  return;
-});
-
-app.post('/todos', async (req, res) => {
-  const { title, description } = req.body;
-  console.log(title, description);
-  const id = generateUniqueId();
-  const newTodo = { id, title, description, completed: false };
-
-  todoList.push(newTodo);
-
-  await writeTodoList(); // Update the todoList in the file
-
-  res.status(201).json({ id });
-  return ;
-});
-
-app.put("/todos/:id", async (req, res) => {
-  let { title, description } = req.body;
-  let id = req.params.id;
-
-  for (let todo of todoList) {
-    if (todo.id === id) {
-      todo.title = title;
-      todo.description = description;
-
-      let data = JSON.stringify(todoList);
-      await fs.writeFile(todoListFilePath, data, "utf-8");
-      res.status(200).json(todo);
-      return;
-
+  
+  const todoListFilePath = path.join(__dirname, '/files/todoList.json');
+  let todoList = [];
+  
+  async function readTodoList() {
+    try {
+      const data = await fs.readFile(todoListFilePath, 'utf-8');
+      todoList = JSON.parse(data);
+    } catch (error) {
+      todoList = [];
     }
   }
-   
-  res.send("no such id exists");
-  return;
   
-})
+  async function writeTodoList() {
+    const data = JSON.stringify(todoList, null, 2);
+    await fs.writeFile(todoListFilePath, data, 'utf-8');
+  }
+  
+  app.get('/todos', async (req, res) => {
+    await readTodoList();
+    res.status(200).json(todoList);
+  });
+  
+  app.get('/todos/:id', (req, res) => {
+    const reqId = req.params.id;
+    const todo = todoList.find((todo) => todo.id === reqId);
+  
+    if (todo) {
+      res.status(200).json(todo);
+    } else {
+      res.status(404).json({ error: 'Todo not found' });
+    }
+  });
+  
+  app.post('/todos', async (req, res) => {
+    const { title, description } = req.body;
+    console.log(title, description);
+    const id = generateUniqueId();
+    const newTodo = { id, title, description, completed: false };
+  
+    todoList.push(newTodo);
+  
+    await writeTodoList(); // Update the todoList in the file
+  
+    res.status(201).json({ id });
+  });
+  
+  const port = 3000;
+  app.listen(port, async () => {
+    await readTodoList();
+    console.log(`Server is running on http://localhost:${port}`);
+  });
+  
 
-app.delete("/todos/:id", async(req,res)=>{
-   let id= req.params.id;
-   todoList = todoList.filter((todo)=>{
-    return todo.id!=id;
-   })
-   
-   let data= JSON.stringify(todoList);
-   await fs.writeFile(todoListFilePath,data,"utf-8");
-   res.status(200).json(todoList);
-   return ;
-})
+  app.put("/todos/:id",async (req,res)=>{
+     let {title ,description} = req.body;
+     let id = req.params.id;
 
-
-const port = 3000;
-app.listen(port, async () => {
-  await readTodoList();
-  console.log(`Server is running on http://localhost:${port}`);
-});
-
-module.exports = app;
+     for(let todo of todoList)
+     {
+       if(todo.id === id)
+       {
+          todo.title = title;
+          todo.description = description;
+       }
+     }
+  })
+  module.exports = app;
+  
