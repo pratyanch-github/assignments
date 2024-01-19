@@ -6,19 +6,37 @@
  */
 
 function wait1(t) {
-
+   let prom= new Promise((resolve, reject)=>{
+         let timeout= setTimeout(()=>{
+              resolve("resolved w1 called");
+         },2000);
+        
+   })
 }
 
 function wait2(t) {
-
+    let prom= new Promise((resolve, reject)=>{
+        let timeout= setTimeout(()=>{
+             resolve("resolved w2 called");
+        },2000);
+       
+  })
 }
 
 function wait3(t) {
-
+    let prom= new Promise((resolve, reject)=>{
+        let timeout= setTimeout(()=>{
+             resolve("resolved w3 called");
+        },2000);
+       
+  })
 }
 
 function calculateTime(t1, t2, t3) {
+     return wait1(t1)
+               .then((resultOfCalculateTimeResolve)=>{
 
+               })
 }
 
 module.exports = calculateTime;
